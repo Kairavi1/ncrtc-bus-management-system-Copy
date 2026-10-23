@@ -125,10 +125,4 @@ These are demonstration credentials for local assessment use only. Do not use th
 
 The frontend and backend TypeScript builds have been run successfully during development.
 
-## License
 
-Developed for educational and assessment purposes.
-
-```
-
-```
