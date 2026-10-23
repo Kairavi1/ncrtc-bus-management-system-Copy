@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Depot {
+  id        String     @id @default(cuid())
+  name      String
+  location  String?
+  duties    Duty[]
+  incidents Incident[]
+  notices   Notice[]   @relation("NoticeTargetDepot")
+  users     User[]
+  vehicles  Vehicle[]
+}
+
+model User {
+  id                String          @id @default(cuid())
+  name              String
+  email             String          @unique
+  passwordHash      String
+  role              String
+  depotId           String?
+  duties            Duty[]          @relation("DutyDriver")
+  incidentsAssigned Incident[]      @relation("IncidentAssignee")
+  incidentsReported Incident[]      @relation("IncidentReporter")
+  incidentEvents    IncidentEvent[]
+  noticesCreated    Notice[]        @relation("NoticeCreator")
+  noticeReads       NoticeRead[]
+  depot             Depot?          @relation(fields: [depotId], references: [id])
+}
+
+model Vehicle {
+  id             String     @id @default(cuid())
+  registrationNo String     @unique
+  status         String     @default("active")
+  depotId        String
+  duties         Duty[]
+  gpsPings       GpsPing[]
+  incidents      Incident[]
+  depot          Depot      @relation(fields: [depotId], references: [id])
+}
+
+model Stop {
+  id         String      @id @default(cuid())
+  name       String
+  latitude   Float
+  longitude  Float
+  routeStops RouteStop[]
+}
+
+model Route {
+  id         String      @id @default(cuid())
+  name       String
+  code       String      @unique
+  duties     Duty[]
+  routeStops RouteStop[]
+}
+
+model RouteStop {
+  id             String  @id @default(cuid())
+  routeId        String
+  stopId         String
+  sequence       Int
+  plannedArrival String?
+  stop           Stop    @relation(fields: [stopId], references: [id])
+  route          Route   @relation(fields: [routeId], references: [id])
+
+  @@unique([routeId, sequence])
+}
+
+model Duty {
+  id             String    @id @default(cuid())
+  dutyDate       DateTime
+  driverId       String
+  vehicleId      String
+  routeId        String
+  depotId        String
+  status         String    @default("scheduled")
+  acknowledgedAt DateTime?
+  depot          Depot     @relation(fields: [depotId], references: [id])
+  route          Route     @relation(fields: [routeId], references: [id])
+  vehicle        Vehicle   @relation(fields: [vehicleId], references: [id])
+  driver         User      @relation("DutyDriver", fields: [driverId], references: [id])
+}
+
+model GpsPing {
+  id         String   @id @default(cuid())
+  vehicleId  String
+  latitude   Float
+  longitude  Float
+  speed      Float    @default(0)
+  recordedAt DateTime @default(now())
+  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id])
+
+  @@index([vehicleId, recordedAt])
+}
+
+model Incident {
+  id           String          @id @default(cuid())
+  type         String
+  severity     String
+  description  String
+  status       String          @default("Open")
+  vehicleId    String?
+  reporterId   String?
+  assignedToId String?
+  depotId      String
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  depot        Depot           @relation(fields: [depotId], references: [id])
+  assignedTo   User?           @relation("IncidentAssignee", fields: [assignedToId], references: [id])
+  reporter     User?           @relation("IncidentReporter", fields: [reporterId], references: [id])
+  vehicle      Vehicle?        @relation(fields: [vehicleId], references: [id])
+  events       IncidentEvent[]
+}
+
+model IncidentEvent {
+  id         String   @id @default(cuid())
+  incidentId String
+  userId     String
+  note       String
+  status     String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  incident   Incident @relation(fields: [incidentId], references: [id])
+}
+
+model Notice {
+  id             String       @id @default(cuid())
+  title          String
+  body           String
+  targetAudience String
+  targetDepotId  String?
+  publishedAt    DateTime?
+  createdById    String?
+  createdBy      User?        @relation("NoticeCreator", fields: [createdById], references: [id])
+  targetDepot    Depot?       @relation("NoticeTargetDepot", fields: [targetDepotId], references: [id])
+  reads          NoticeRead[]
+}
+
+model NoticeRead {
+  id       String   @id @default(cuid())
+  noticeId String
+  userId   String
+  readAt   DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id])
+  notice   Notice   @relation(fields: [noticeId], references: [id])
+
+  @@unique([noticeId, userId])
+}
