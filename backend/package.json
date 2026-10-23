@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "gps:simulate": "tsx src/gpsSimulator.ts",
     "build": "tsc",
     "start": "node dist/index.js"
   },

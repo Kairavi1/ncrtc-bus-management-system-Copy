@@ -161,6 +161,62 @@ app.listen(PORT, () => {
     .catch((error) => console.error("Database connection failed:", error));
 });
 
+app.get("/api/vehicles/:vehicleId/history", requireAuth, async (req, res) => {
+  try {
+    const user = (req as AuthRequest).user;
+    const rawVehicleId = req.params.vehicleId;
+    const vehicleId = typeof rawVehicleId === "string" ? rawVehicleId : "";
+
+    if (!user) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    if (!vehicleId) {
+      return res
+        .status(400)
+        .json({ message: "A valid vehicle ID is required" });
+    }
+
+    const vehicle = await prisma.vehicle.findFirst({
+      where: {
+        id: vehicleId,
+        ...(user.role !== "admin" && user.depotId
+          ? { depotId: user.depotId }
+          : {}),
+        ...(user.role !== "admin" && !user.depotId
+          ? { id: "__no_access__" }
+          : {}),
+      },
+      select: {
+        id: true,
+        registrationNo: true,
+      },
+    });
+
+    if (!vehicle) {
+      return res.status(404).json({ message: "Vehicle not found" });
+    }
+
+    const pings = await prisma.gpsPing.findMany({
+      where: { vehicleId: vehicle.id },
+      orderBy: { recordedAt: "desc" },
+      take: 500,
+      select: {
+        id: true,
+        latitude: true,
+        longitude: true,
+        speed: true,
+        recordedAt: true,
+      },
+    });
+
+    return res.json({ vehicle, history: pings });
+  } catch (error) {
+    console.error("GPS history error:", error);
+    return res.status(500).json({ message: "Could not load GPS history" });
+  }
+});
+
 app.get("/api/vehicles", requireAuth, async (_req, res) => {
   try {
     const vehicles = await prisma.vehicle.findMany({

@@ -526,3 +526,116 @@ h3,
     padding: 27px;
   }
 }
+
+/* Notices page */
+.notices-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.notices-page .content-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.notices-page .panel {
+  min-width: 0;
+}
+
+.notices-page .notice-form-panel > p {
+  color: #64748b;
+  font-size: 13px;
+  margin: 6px 0 22px;
+}
+
+.notices-page .notice-form-panel form {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.notices-page .notice-form-panel label {
+  margin-top: 9px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.notices-page .notice-form-panel input,
+.notices-page .notice-form-panel select,
+.notices-page .notice-form-panel textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border: 1px solid #dbe2ea;
+  border-radius: 8px;
+  background: #fff;
+  color: #1e293b;
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.notices-page .notice-form-panel input:focus,
+.notices-page .notice-form-panel select:focus,
+.notices-page .notice-form-panel textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 10%);
+}
+
+.notices-page .notice-form-panel textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+.notices-page .notice-form-panel .primary-button {
+  align-self: flex-start;
+  margin-top: 16px;
+  padding: 11px 18px;
+  border: none;
+  border-radius: 8px;
+  background: #174ea6;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.notices-page .notice-form-panel .primary-button:hover {
+  background: #123d83;
+}
+
+.notices-page .notice-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid #e8edf3;
+}
+
+.notices-page .notice-row:last-child {
+  border-bottom: none;
+}
+
+.notices-page .notice-row strong {
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.notices-page .notice-row p {
+  margin: 7px 0 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  .notices-page .content-grid {
+    grid-template-columns: 1fr;
+  }
+}

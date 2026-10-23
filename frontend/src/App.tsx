@@ -14,6 +14,8 @@ import FleetPage from "./pages/FleetPage";
 import DashboardPage from "./pages/DashboardPage";
 import RoutesPage from "./pages/RoutesPage";
 import DutiesPage from "./pages/DutiesPage";
+import LoginPage from "./pages/LoginPage";
+import NoticesPage from "./pages/NoticesPage";
 
 const API = "http://localhost:5001";
 
@@ -315,42 +317,15 @@ function App() {
 
   if (!token || !user || !dashboard) {
     return (
-      <main className="login-page">
-        <section className="login-card">
-          <div className="brand-mark">N</div>
-          <p className="eyebrow">NATIONAL CAPITAL REGION</p>
-          <h1>Transit Control</h1>
-          <p className="muted">NCRTC Bus Management System</p>
-
-          <form onSubmit={handleLogin}>
-            <label htmlFor="email">Email address</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-            />
-
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
-
-            {error && <p className="error">{error}</p>}
-
-            <button type="submit" disabled={loading}>
-              {loading ? "Signing in..." : "Sign in to dashboard"}
-            </button>
-          </form>
-
-          <p className="demo-hint">Local demo: admin@ncrtc.demo / Demo@123</p>
-        </section>
-      </main>
+      <LoginPage
+        email={email}
+        password={password}
+        error={error}
+        loading={loading}
+        onEmailChange={setEmail}
+        onPasswordChange={setPassword}
+        onSubmit={handleLogin}
+      />
     );
   }
 
@@ -473,26 +448,7 @@ function App() {
         )}
 
         {selectedPage === "Notices" && (
-          <section className="incidents-page">
-            <article className="panel">
-              <h2>Notices & announcements</h2>
-              <p>
-                {dashboard.recentNotices.length === 0
-                  ? "No notices available."
-                  : "Operational updates"}
-              </p>
-
-              {dashboard.recentNotices.map((notice) => (
-                <div className="notice-row" key={notice.id}>
-                  <div className="notice-symbol">i</div>
-                  <div>
-                    <strong>{notice.title}</strong>
-                    <p>{notice.body}</p>
-                  </div>
-                </div>
-              ))}
-            </article>
-          </section>
+          <NoticesPage notices={dashboard.recentNotices} />
         )}
 
         <footer className="page-footer">
